@@ -1,15 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <Button
         android:id="@+id/auto_service_setting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:padding="16dp"
         android:text="自动化开关"/>
+
+    <EditText
+        android:id="@+id/auto_first_reply_et"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:hint="新添加好友自动回复内容"/>
+
+    <EditText
+        android:id="@+id/auto_oldfriend_reply_et"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:hint="已经添加好友后的聊天自动回复"/>
+
+    <Button
+        android:id="@+id/auto_reply_save_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#ffffc3"
+        android:layout_marginLeft="16dp"
+        android:padding="16dp"
+        android:text="保存自动回复内容"/>
 
 </LinearLayout>

@@ -7,8 +7,6 @@ import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.PendingIntent;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -23,10 +21,22 @@ import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.wuyue.autoreply.model.AutoReply;
+import com.wuyue.autoreply.model.QuestionModel;
+import com.wuyue.autoreply.utils.StringUtil;
+import com.wuyue.autoreply.ykasynctask.AsyncTaskCallBack;
+import com.wuyue.autoreply.ykasynctask.AsyncTaskInterface;
+import com.wuyue.autoreply.ykasynctask.AsyncTaskType;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-public class AutoReplyService extends AccessibilityService {
+public class AutoReplyService extends AccessibilityService implements AsyncTaskCallBack {
     private static final int SEND_BUTTON = 0;
 
     private static final int ACCEPT_BUTTON = 1;
@@ -81,7 +91,15 @@ public class AutoReplyService extends AccessibilityService {
      */
     private boolean mOnlyTalk;
 
-    private SharePreHelper mSharePreHelper;
+    private List<AutoReply> mAutoReplyList;
+
+    private List<QuestionModel> mQuestionModelList;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        AsyncTaskInterface.getInstance().addAsyncTask(AsyncTaskType.GET_DATA_FROM_ASSET, this);
+    }
 
     /**
      * 必须重写的方法，响应各种事件。
@@ -98,7 +116,7 @@ public class AutoReplyService extends AccessibilityService {
         }
         switch (eventType) {
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:// 通知栏事件
-                android.util.Log.i("maptrix", "get notification event");
+//
                 List<CharSequence> texts = event.getText();
                 if (!texts.isEmpty()) {
                     for (CharSequence text : texts) {
@@ -382,9 +400,9 @@ public class AutoReplyService extends AccessibilityService {
                     }
                 }
                 if (mHasAddLabel && !mHasSearch) {
-                    if( sharePreHelper.getPref(NUMBERS_IN_LABEL, 0) == 3) {
+                    if (sharePreHelper.getPref(NUMBERS_IN_LABEL, 0) == 3) {
                         addQun();
-                    }else{
+                    } else {
                         back2Home();
                         release();
                     }
@@ -525,7 +543,7 @@ public class AutoReplyService extends AccessibilityService {
     private boolean fill() {
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
         if (rootNode != null) {
-            return findEditText(rootNode, "正在忙,稍后回复你");
+            return findEditText(rootNode);
         }
         return false;
     }
@@ -534,7 +552,7 @@ public class AutoReplyService extends AccessibilityService {
     private boolean invitationFillContent() {
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
         if (rootNode != null && !mAddQun) {
-            return EditTextUtil.findEditText2(rootNode, "hello");
+            return EditTextUtil.findEditText2(rootNode, SharePreHelper.getInstance(this).getPref(MainActivity.AUTO_FIRST_ADD_REPLY, "稍后会将您拉进群里哦"));
         }
         return false;
 
@@ -567,10 +585,20 @@ public class AutoReplyService extends AccessibilityService {
 
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    private boolean findEditText(AccessibilityNodeInfo rootNode, String content) {
+    private boolean findEditText(AccessibilityNodeInfo rootNode) {
+        String replyContent = "";
         int count = rootNode.getChildCount();
 
-        android.util.Log.d("maptrix", "root class=" + rootNode.getClassName() + "," + rootNode.getText() + "," + count);
+        if(null != mAutoReplyList){
+            for(int reply = 0; reply < mAutoReplyList.size(); reply ++){
+              if(scontent.contains(mAutoReplyList.get(reply).getQuestion())){
+                  replyContent = mAutoReplyList.get(reply).getAutoReply();
+              }
+            }
+            if(TextUtils.isEmpty(replyContent)){
+                replyContent = "现在有些忙，稍后帮你处理下哦";
+            }
+        }
         for (int i = 0; i < count; i++) {
             AccessibilityNodeInfo nodeInfo = rootNode.getChild(i);
             if (nodeInfo == null) {
@@ -603,13 +631,13 @@ public class AutoReplyService extends AccessibilityService {
 //                ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 //                clipboardManager.setPrimaryClip(clip);
                 Bundle arguments = new Bundle();
-                arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, content);
+                arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, replyContent);
                 nodeInfo.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
 //                nodeInfo.performAction(AccessibilityNodeInfo.ACTION_PASTE);
                 return true;
             }
 
-            if (findEditText(nodeInfo, content)) {
+            if (findEditText(nodeInfo)) {
                 return true;
             }
         }
@@ -878,6 +906,34 @@ public class AutoReplyService extends AccessibilityService {
                 item.performAction(AccessibilityNodeInfo.ACTION_CLICK);
             }
         }
+    }
+
+
+    @Override
+    public Object onTaskExecute(int asyncTaskType, Object... asyncTaskParams) {
+        JSONObject jsonAutoReplyObeject = null;
+        mAutoReplyList = new ArrayList<>();
+        try {
+
+            String jsonString = StringUtil.inputSteamToString(getAssets().open("question.json"), "utf-8");
+
+            jsonAutoReplyObeject = new JSONObject(jsonString);
+
+            JSONArray jsonArray = jsonAutoReplyObeject.optJSONArray("RECORDS");
+
+            mAutoReplyList = AutoReply.parse(jsonArray);
+
+        } catch (IOException mE) {
+            mE.printStackTrace();
+        } catch (JSONException mE) {
+            mE.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public void onTaskComplete(int asyncThreadType, Object asyncTaskResult) {
+
     }
 
 

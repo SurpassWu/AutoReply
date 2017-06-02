@@ -1,0 +1,68 @@
+{
+  "RECORDS": [
+    {
+      "question": "再见",
+      "auto_reply": "拜拜"
+    },
+    {
+      "question": "哈喽",
+      "auto_reply": "你好"
+    },
+    {
+      "question": "你好",
+      "auto_reply": "你好"
+    },
+    {
+      "question": "哈哈",
+      "auto_reply": "嘿嘿"
+    },
+    {
+      "question": "进群",
+      "auto_reply": "稍等哦，统一拉几个小伙伴一起"
+    },
+    {
+      "question": "什么时候开课",
+      "auto_reply": "晚上七点会发课程哦"
+    },
+    {
+      "question": "开课",
+      "auto_reply": "晚上七点会发课程哦"
+    },
+    {
+      "question": "谢",
+      "auto_reply": "不客气呢"
+    },
+    {
+      "question": "拜拜",
+      "auto_reply": "拜拜"
+    },
+    {
+      "question": "问题",
+      "auto_reply": "我看看哈，我也不知道咋回事"
+    },
+    {
+      "question": "图片显示有问题",
+      "auto_reply": "我看看哈，我也不知道咋回事"
+    },
+    {
+      "question": "图片",
+      "auto_reply": "我看看哈，我也不知道咋回事"
+    },
+    {
+      "question": "拉我",
+      "auto_reply": "稍后会拉您进群"
+    },
+    {
+      "question": "进群",
+      "auto_reply": "稍后会拉您进群"
+    },
+    {
+      "question": "加群",
+      "auto_reply": "稍后会拉您进群"
+    },
+    {
+      "question": "画画",
+      "auto_reply": "稍后会拉您进群"
+    }
+  ]
+}
