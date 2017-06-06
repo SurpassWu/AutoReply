@@ -593,6 +593,8 @@ public class AutoReplyService extends AccessibilityService implements AsyncTaskC
             for(int reply = 0; reply < mAutoReplyList.size(); reply ++){
               if(scontent.contains(mAutoReplyList.get(reply).getQuestion())){
                   replyContent = mAutoReplyList.get(reply).getAutoReply();
+              }else if(scontent.contains("图片")){
+                  replyContent = "好的，看到了，马上拉你进群";
               }
             }
             if(TextUtils.isEmpty(replyContent)){
